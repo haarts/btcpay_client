@@ -11,12 +11,6 @@ import "package:pointycastle/key_generators/api.dart";
 import "package:pointycastle/key_generators/ec_key_generator.dart";
 import "package:pointycastle/random/fortuna_random.dart";
 
-void main() {
-  var keyPair = randomSecp256k1KeyPair();
-  ECPrivateKey privateKey = keyPair.privateKey;
-  print(privateKey.d); // 'd' is a BigInt
-}
-
 class Client {
   const String userAgent = 'BTCPay - Dart';
 
@@ -49,6 +43,11 @@ class Client {
   }
 }
 
+ECPublicKey derivePublicKeyFrom(ECPrivateKey privateKey) {
+    var ecParams = ECCurve_secp256k1();
+    return ECPublicKey(ecParams.G * privateKey.d, ecParams);
+}
+
 AsymmetricKeyPair<PublicKey, PrivateKey> randomSecp256k1KeyPair() {
   var keyParams = ECKeyGeneratorParameters(ECCurve_secp256k1());
 
@@ -60,8 +59,6 @@ AsymmetricKeyPair<PublicKey, PrivateKey> randomSecp256k1KeyPair() {
 
   return generator.generateKeyPair();
 }
-
-_generate_sin(ECPublicKey key) {}
 
 Uint8List _seed() {
   var random = Random.secure();
