@@ -28,4 +28,12 @@ void main() {
     expect(derivePublicKeyFrom(keyPair.privateKey).Q.getEncoded(),
         equals(publicKey.Q.getEncoded()));
   });
+
+  test('Sign message', () {
+    var message = "random message";
+    var keyPair = randomSecp256k1KeyPair();
+    var signature = sign(message, keyPair.privateKey);
+
+    expect(verify(message, signature, keyPair.publicKey), equals(true));
+  });
 }

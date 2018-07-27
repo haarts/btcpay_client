@@ -1,7 +1,9 @@
 import "dart:typed_data";
+import "dart:convert";
 import "dart:math";
 import "package:base58check/base58.dart";
 import 'package:convert/convert.dart';
+import 'package:asn1lib/asn1lib.dart';
 import "package:pointycastle/pointycastle.dart";
 import "package:pointycastle/export.dart";
 import "package:pointycastle/api.dart";
@@ -12,7 +14,7 @@ import "package:pointycastle/key_generators/ec_key_generator.dart";
 import "package:pointycastle/random/fortuna_random.dart";
 
 class Client {
-  const String userAgent = 'BTCPay - Dart';
+  const String userAgent = '{BTC|Bit}Pay - Dart';
 
   String uri;
   AsymmetricKeyPair keyPair;
@@ -43,9 +45,56 @@ class Client {
   }
 }
 
+String sign(String message, ECPrivateKey key) {
+  ECDSASigner signer = _createSigner(key);
+  ECSignature signature = signer.generateSignature(utf8.encode(message));
+
+  return _encodeSignature(signature);
+}
+
+bool verify(String message, String signature, ECPublicKey key) {
+  ECDSASigner verifier = _createVerifier(key);
+  ECSignature decodedSignature = _decodeSignature(signature);
+
+  return verifier.verifySignature(utf8.encode(message), decodedSignature);
+}
+
+ECDSASigner _createVerifier(ECPublicKey key) {
+  var forSigning = false;
+  var params = PublicKeyParameter(key);
+  Mac signerMac = HMac(SHA256Digest(), 64);
+
+  return ECDSASigner(null, signerMac)..init(forSigning, params);
+}
+
+ECDSASigner _createSigner(ECPrivateKey key) {
+  var forSigning = true;
+  var params = PrivateKeyParameter(key);
+  Mac signerMac = HMac(SHA256Digest(), 64);
+
+  return ECDSASigner(null, signerMac)..init(forSigning, params);
+}
+
+ECSignature _decodeSignature(String signature) {
+  var parser = ASN1Parser(hex.decoder.convert(signature));
+  ASN1Sequence sequence = parser.nextObject();
+  ASN1Integer r = sequence.elements[0];
+  ASN1Integer s = sequence.elements[1];
+
+  return ECSignature(r.valueAsBigInteger, s.valueAsBigInteger);
+}
+
+String _encodeSignature(ECSignature signature) {
+  var sequence = ASN1Sequence();
+  sequence.add(ASN1Integer(signature.r));
+  sequence.add(ASN1Integer(signature.s));
+
+  return hex.encoder.convert(sequence.encodedBytes);
+}
+
 ECPublicKey derivePublicKeyFrom(ECPrivateKey privateKey) {
-    var ecParams = ECCurve_secp256k1();
-    return ECPublicKey(ecParams.G * privateKey.d, ecParams);
+  var ecParams = ECCurve_secp256k1();
+  return ECPublicKey(ecParams.G * privateKey.d, ecParams);
 }
 
 AsymmetricKeyPair<PublicKey, PrivateKey> randomSecp256k1KeyPair() {
