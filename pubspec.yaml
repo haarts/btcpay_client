@@ -4,7 +4,7 @@ description: Library to interact with a BTCPay or BitPay server
 
 dependencies:
     pointycastle: ^1.0.0-rc2
-    base58check: ^1.0.0
+    base58check: ^1.0.1
     convert: ^2.0.2
     asn1lib: ^0.5.1
 
