@@ -61,6 +61,28 @@ class Client {
     ).toString();
   }
 
+  String invoice(double price, String currency) async {
+    await httpClient
+        .postUrl(url.replace(path: invoicesPath))
+        .then((HttpClientRequest request) {
+      String body = '{}';
+      request.headers.set('X-Signature',
+          sign(request.uri.toString() + body, keyPair.privateKey));
+      request.headers.set('X-Identity', clientId);
+      request.write(body);
+      print(request.headers);
+      print(request.uri);
+      return request.close();
+    }).then((HttpClientResponse response) {
+      print(response.statusCode);
+      response.transform(utf8.decoder).listen((contents) {
+                                                    print(contents);
+      });
+    });
+
+    return "";
+  }
+
   Future<HttpClientResponse> _requestPairingCode() async {
     return await httpClient
         .postUrl(url.replace(path: tokenPath))
