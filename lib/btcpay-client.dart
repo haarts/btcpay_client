@@ -1,6 +1,10 @@
 import "dart:typed_data";
+import "dart:core";
 import "dart:convert";
 import "dart:math";
+import "dart:io";
+import "dart:async";
+
 import "package:base58check/base58.dart";
 import 'package:convert/convert.dart';
 import 'package:asn1lib/asn1lib.dart';
@@ -16,20 +20,58 @@ import "package:pointycastle/random/fortuna_random.dart";
 class Client {
   const String userAgent = '{BTC|Bit}Pay - Dart';
 
-  String uri;
+  Uri url;
   AsymmetricKeyPair keyPair;
+  HttpClient httpClient;
+
+  const String tokenPath = 'tokens';
+  const String apiAccessRequestPath = 'api-access-request';
+  const String invoicesPath = 'invoices';
+
+  // clientId aka SIN
   String clientId;
 
+  const String alphabet =
+      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
   const int prefix = 0x0F;
   const int sinType = 0x02;
 
   static final sha256digest = SHA256Digest();
   static final ripemd160digest = RIPEMD160Digest();
 
-  Client(this.uri, this.keyPair) {
+  Client(String url, this.keyPair) {
     clientId = _convertToClientId(keyPair.publicKey);
+    httpClient = HttpClient();
+    this.url = Uri.parse(url);
   }
 
+  /// Returns a URL to which the user must go to approve the pairing.
+  String clientInitiatedPairing() async {
+    // When I grow up I want to make this eye sore pretty.
+    var request = await _requestPairingCode();
+    var response = await request;
+    String pairingCode;
+    await response.transform(utf8.decoder).listen((contents) {
+      pairingCode = json.decode(contents)['data'][0]['pairingCode'];
+    });
+
+    return url.replace(
+      path: apiAccessRequestPath,
+      queryParameters: {'pairingCode': pairingCode},
+    ).toString();
+  }
+
+  Future<HttpClientResponse> _requestPairingCode() async {
+    return await httpClient
+        .postUrl(url.replace(path: tokenPath))
+        .then((HttpClientRequest request) {
+      request.headers.contentType = ContentType.json;
+      request.write("{'id':'$clientId', 'facade': 'pos'}");
+      return request.close();
+    });
+  }
+
+  /// Converts a public key to a SIN type identifier as per https://en.bitcoin.it/wiki/Identity_protocol_v1.
   String _convertToClientId(ECPublicKey publicKey) {
     var versionedDigest = [prefix, sinType];
     var digest =
@@ -39,9 +81,7 @@ class Client {
         .process(sha256digest.process(Uint8List.fromList(versionedDigest)))
         .getRange(0, 4);
     versionedDigest.addAll(checksum);
-    return Base58Codec(
-            "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
-        .encode(versionedDigest);
+    return Base58Codec(alphabet).encode(versionedDigest);
   }
 }
 
