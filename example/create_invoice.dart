@@ -6,15 +6,13 @@ import "package:pointycastle/api.dart";
 import 'package:btcpay_client/btcpay-client.dart';
 
 void main() async {
-  ECPrivateKey privateKey = await load();
+  var client =
+      Client("https://test2-btc-ltc.forkbitpay.ninja/", await loadKey());
+  print(await client.getToken());
+}
+
+AsymmetricKeyPair loadKey() async {
+  ECPrivateKey privateKey = await load('/tmp/d');
   ECPublicKey publicKey = derivePublicKeyFrom(privateKey);
-
-  var keyPair = AsymmetricKeyPair(publicKey, privateKey);
-	var client = Client("https://test2-btc-ltc.forkbitpay.ninja/", keyPair);
-
-	String url = await client.clientInitiatedPairing();
-	print(url);
-	stdin.readLineSync();
-
-	client.invoice(1.0, 'CHF');
+  return AsymmetricKeyPair(publicKey, privateKey);
 }
