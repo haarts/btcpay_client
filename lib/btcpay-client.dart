@@ -177,17 +177,14 @@ Uint8List _seed() {
   return Uint8List.fromList(seed);
 }
 
-void save(ECPrivateKey privateKey) async {
-  var file = File('/tmp/d');
+void save(String fileName, ECPrivateKey privateKey) async {
+  var file = File(fileName);
   await file.create();
   await file.writeAsString(privateKey.d.toString());
 }
 
-ECPrivateKey load() async {
-  var file = File('/tmp/d');
+ECPrivateKey load(String fileName) async {
+  var file = File(fileName);
   var d = await file.readAsString();
   return ECPrivateKey(BigInt.parse(d), ECCurve_secp256k1());
 }
-
-// TODO
-// Restore the ECPrivateKey from 'd'.

@@ -8,7 +8,7 @@ import 'package:btcpay_client/btcpay-client.dart';
 void main() {
   test('Saves key to disk', () async {
     var keyPair = randomSecp256k1KeyPair();
-    await save(keyPair.privateKey);
+    await save('/tmp/d', keyPair.privateKey);
 
     var file = File('/tmp/d');
     expect(await file.exists(), true);
@@ -16,9 +16,9 @@ void main() {
 
   test('Loads key from disk', () async {
     ECPrivateKey privateKey = randomSecp256k1KeyPair().privateKey;
-    await save(privateKey);
+    await save('/tmp/d', privateKey);
 
-    var key = await load();
+    var key = await load('/tmp/d');
     expect(key.d, equals(privateKey.d));
   });
 }
