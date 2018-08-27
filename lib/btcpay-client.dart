@@ -5,6 +5,7 @@ import "dart:math";
 import "dart:io";
 import "dart:async";
 
+import 'package:hex/hex.dart';
 import "package:base58check/base58.dart";
 import 'package:convert/convert.dart';
 import 'package:asn1lib/asn1lib.dart';
@@ -28,7 +29,7 @@ class Client {
   const String apiAccessRequestPath = 'api-access-request';
   const String invoicesPath = 'invoices';
 
-  // clientId aka SIN
+  /// clientId aka SIN
   String clientId;
 
   const String alphabet =
@@ -61,7 +62,21 @@ class Client {
     ).toString();
   }
 
-  String invoice(double price, String currency) async {
+  String getToken() async {
+    // Annoyingly the Dart compiler doesn't correctly infer the sub type.
+    ECPublicKey publicKey = keyPair.publicKey;
+    var request = await httpClient.getUrl(url.replace(path: tokenPath));
+    request.headers
+        .set('X-Signature', sign(request.uri.toString(), keyPair.privateKey));
+    request.headers
+        .set('X-Identity', HEX.encode(publicKey.Q.getEncoded(false)));
+    var response = await request.close();
+
+    return await response.transform(utf8.decoder).join();
+  }
+
+  String createInvoice(double price, String currency) async {
+    // TODO
     await httpClient
         .postUrl(url.replace(path: invoicesPath))
         .then((HttpClientRequest request) {
@@ -70,13 +85,10 @@ class Client {
           sign(request.uri.toString() + body, keyPair.privateKey));
       request.headers.set('X-Identity', clientId);
       request.write(body);
-      print(request.headers);
-      print(request.uri);
       return request.close();
     }).then((HttpClientResponse response) {
-      print(response.statusCode);
       response.transform(utf8.decoder).listen((contents) {
-                                                    print(contents);
+        print(contents);
       });
     });
 
@@ -124,7 +136,7 @@ bool verify(String message, String signature, ECPublicKey key) {
 ECDSASigner _createVerifier(ECPublicKey key) {
   var forSigning = false;
   var params = PublicKeyParameter(key);
-  Mac signerMac = HMac(SHA256Digest(), 64);
+  Mac signerMac = HMac(sha256digest, 64);
 
   return ECDSASigner(null, signerMac)..init(forSigning, params);
 }
@@ -132,9 +144,9 @@ ECDSASigner _createVerifier(ECPublicKey key) {
 ECDSASigner _createSigner(ECPrivateKey key) {
   var forSigning = true;
   var params = PrivateKeyParameter(key);
-  Mac signerMac = HMac(SHA256Digest(), 64);
+  Mac signerMac = HMac(sha256digest, 64);
 
-  return ECDSASigner(null, signerMac)..init(forSigning, params);
+  return ECDSASigner(sha256digest, signerMac)..init(forSigning, params);
 }
 
 ECSignature _decodeSignature(String signature) {
