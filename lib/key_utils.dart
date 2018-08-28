@@ -43,7 +43,7 @@ AsymmetricKeyPair load(String fileName) async {
   var file = File(fileName);
   var d = await file.readAsString();
   ECPrivateKey privateKey = ECPrivateKey(BigInt.parse(d), ECCurve_secp256k1());
-  ECPublicKey  publicKey = _derivePublicKeyFrom(privateKey);
+  ECPublicKey publicKey = _derivePublicKeyFrom(privateKey);
 
   return AsymmetricKeyPair(publicKey, privateKey);
 }
@@ -107,4 +107,3 @@ Uint8List _seed() {
   var seed = List<int>.generate(32, (_) => random.nextInt(256));
   return Uint8List.fromList(seed);
 }
-

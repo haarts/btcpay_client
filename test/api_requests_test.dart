@@ -72,4 +72,16 @@ void main() {
     expect(request.uri.path, '/invoices');
     expect(request.method, 'POST');
   });
+
+  test('Get an invoice', () async {
+    var cannedResponse = await File('test/files/get_invoice_response.json').readAsString();
+		server.enqueue(body: cannedResponse);
+    var client = Client(server.url, randomSecp256k1KeyPair());
+
+    var response = await client.getInvoice("abcde");
+    var request = server.takeRequest();
+
+    expect(request.uri.path, '/invoices/abcde');
+    expect(request.method, 'GET');
+  });
 }

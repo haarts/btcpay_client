@@ -32,7 +32,6 @@ class Client {
   const int prefix = 0x0F;
   const int sinType = 0x02;
 
-
   static final ripemd160digest = RIPEMD160Digest();
   static final sha256digest = SHA256Digest();
 
@@ -81,12 +80,29 @@ class Client {
         "price": price,
         "currency": currency,
       };
-      request.headers.set('X-Signature',
-          sign(request.uri.toString() + jsonEncode(params), keyPair.privateKey));
+      request.headers.set(
+        'X-Signature',
+        sign(request.uri.toString() + jsonEncode(params), keyPair.privateKey),
+      );
       request.headers.set('X-Identity', clientId);
       request.write(jsonEncode(params));
+
       return request.close();
     });
+    var response = await request;
+
+    return jsonDecode(await response.transform(utf8.decoder).join());
+  }
+
+  Map<String, dynamic> getInvoice(String id) async {
+    var request = await httpClient
+        .getUrl(url.replace(path: '$invoicesPath/$id'))
+        .then((HttpClientRequest request) {
+      request.headers.contentType = ContentType.json;
+
+      return request.close();
+    });
+
     var response = await request;
 
     return jsonDecode(await response.transform(utf8.decoder).join());
@@ -115,4 +131,3 @@ class Client {
     return Base58Codec(alphabet).encode(versionedDigest);
   }
 }
-
