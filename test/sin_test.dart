@@ -21,12 +21,4 @@ void main() {
 
     expect(client.clientId, equals(clientId));
   });
-
-  test('Sign message', () {
-    var message = "random message";
-    var keyPair = randomSecp256k1KeyPair();
-    var signature = sign(message, keyPair.privateKey);
-
-    expect(verify(message, signature, keyPair.publicKey), equals(true));
-  });
 }
