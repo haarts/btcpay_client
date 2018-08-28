@@ -71,24 +71,25 @@ class Client {
     return await response.transform(utf8.decoder).join();
   }
 
-  String createInvoice(double price, String currency) async {
-    // TODO
-    await httpClient
+  Map<String, dynamic> createInvoice(double price, String currency) async {
+    var request = await httpClient
         .postUrl(url.replace(path: invoicesPath))
         .then((HttpClientRequest request) {
-      String body = '{}';
+      Map<String, dynamic> params = {
+        "token": "some-token",
+        "id": clientId,
+        "price": price,
+        "currency": currency,
+      };
       request.headers.set('X-Signature',
-          sign(request.uri.toString() + body, keyPair.privateKey));
+          sign(request.uri.toString() + jsonEncode(params), keyPair.privateKey));
       request.headers.set('X-Identity', clientId);
-      request.write(body);
+      request.write(jsonEncode(params));
       return request.close();
-    }).then((HttpClientResponse response) {
-      response.transform(utf8.decoder).listen((contents) {
-        print(contents);
-      });
     });
+    var response = await request;
 
-    return "";
+    return jsonDecode(await response.transform(utf8.decoder).join());
   }
 
   Future<HttpClientResponse> _requestPairingCode() async {

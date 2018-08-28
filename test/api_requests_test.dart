@@ -1,4 +1,6 @@
 import "dart:convert";
+import "dart:io";
+
 import 'package:test/test.dart';
 import "package:mock_web_server/mock_web_server.dart";
 import "package:pointycastle/api.dart";
@@ -52,10 +54,22 @@ void main() {
     var client = Client(server.url, randomSecp256k1KeyPair());
 
     var response = await client.getToken();
-
 		var request = server.takeRequest();
 
     expect(request.headers['x-signature'], isNotNull);
     expect(request.headers['x-identity'], isNotNull);
+  });
+
+  test('Creates an invoice', () async {
+    var cannedResponse = await File('test/files/create_invoice_response.json').readAsString();
+		server.enqueue(body: cannedResponse);
+    var client = Client(server.url, randomSecp256k1KeyPair());
+
+    var response = await client.createInvoice(1.0, "CHF");
+    var request = server.takeRequest();
+
+    expect(response, TypeMatcher<Map<String, dynamic>>());
+    expect(request.uri.path, '/invoices');
+    expect(request.method, 'POST');
   });
 }
