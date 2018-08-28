@@ -5,6 +5,7 @@ import "package:pointycastle/ecc/api.dart";
 import "package:pointycastle/api.dart";
 
 import 'package:btcpay_client/btcpay-client.dart';
+import 'package:btcpay_client/key_utils.dart';
 
 void main() {
   test('Generate SIN from EC public key', () {
@@ -19,14 +20,6 @@ void main() {
     var client = Client("irrelevant", AsymmetricKeyPair(publicKey, null));
 
     expect(client.clientId, equals(clientId));
-  });
-
-  test('Derive EC public key from EC private key', () {
-    var keyPair = randomSecp256k1KeyPair();
-    ECPublicKey publicKey = keyPair.publicKey;
-
-    expect(derivePublicKeyFrom(keyPair.privateKey).Q.getEncoded(),
-        equals(publicKey.Q.getEncoded()));
   });
 
   test('Sign message', () {
