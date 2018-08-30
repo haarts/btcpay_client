@@ -19,6 +19,7 @@ class Client {
   Uri url;
   AsymmetricKeyPair keyPair;
   HttpClient httpClient;
+  String authorizationToken;
 
   const String tokenPath = 'tokens';
   const String apiAccessRequestPath = 'api-access-request';
@@ -26,6 +27,7 @@ class Client {
 
   /// clientId aka SIN
   String clientId;
+  String identity;
 
   const String alphabet =
       "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -37,6 +39,8 @@ class Client {
 
   Client(String url, this.keyPair) {
     clientId = _convertToClientId(keyPair.publicKey);
+    identity = hex.encoder
+        .convert((keyPair.publicKey as ECPublicKey).Q.getEncoded(true));
     httpClient = HttpClient();
     this.url = Uri.parse(url);
   }
@@ -57,25 +61,15 @@ class Client {
     ).toString();
   }
 
-  String getToken() async {
-    // Annoyingly the Dart compiler doesn't correctly infer the sub type.
-    ECPublicKey publicKey = keyPair.publicKey;
-    var request = await httpClient.getUrl(url.replace(path: tokenPath));
-    request.headers
-        .set('X-Signature', sign(request.uri.toString(), keyPair.privateKey));
-    request.headers
-        .set('X-Identity', hex.encoder.convert(publicKey.Q.getEncoded(false)));
-    var response = await request.close();
-
-    return await response.transform(utf8.decoder).join();
-  }
-
+  /// Creates an invoice on the remote.
   Map<String, dynamic> createInvoice(double price, String currency) async {
-    var request = await httpClient
+    authorizationToken ??= await _getToken();
+
+    HttpClientResponse response = await httpClient
         .postUrl(url.replace(path: invoicesPath))
         .then((HttpClientRequest request) {
       Map<String, dynamic> params = {
-        "token": "some-token",
+        "token": authorizationToken,
         "id": clientId,
         "price": price,
         "currency": currency,
@@ -84,14 +78,16 @@ class Client {
         'X-Signature',
         sign(request.uri.toString() + jsonEncode(params), keyPair.privateKey),
       );
-      request.headers.set('X-Identity', clientId);
+      request.headers.set('X-Identity', identity);
+      request.headers.contentType = ContentType.json;
       request.write(jsonEncode(params));
 
       return request.close();
     });
-    var response = await request;
 
-    return jsonDecode(await response.transform(utf8.decoder).join());
+    var body = await response.transform(utf8.decoder).join();
+
+    return jsonDecode(body);
   }
 
   Map<String, dynamic> getInvoice(String id) async {
@@ -106,6 +102,22 @@ class Client {
     var response = await request;
 
     return jsonDecode(await response.transform(utf8.decoder).join());
+  }
+
+  /// Returns a token which is required to create a invoice.
+  String _getToken() async {
+    // Annoyingly the Dart compiler doesn't correctly infer the sub type.
+    ECPublicKey publicKey = keyPair.publicKey;
+    var request = await httpClient.getUrl(url.replace(path: tokenPath));
+    request.headers
+        .set('X-Signature', sign(request.uri.toString(), keyPair.privateKey));
+    request.headers.set('X-Identity', identity);
+    var response = await request.close();
+
+    var body = jsonDecode(await response.transform(utf8.decoder).join());
+    print('token response: $body');
+
+    return body["data"][0]["pos"];
   }
 
   Future<HttpClientResponse> _requestPairingCode() async {
