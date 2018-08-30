@@ -47,13 +47,9 @@ class Client {
 
   /// Returns a URL to which the user must go to approve the pairing.
   String clientInitiatedPairing() async {
-    // When I grow up I want to make this eye sore pretty.
     var request = await _requestPairingCode();
-    var response = await request;
-    String pairingCode;
-    await response.transform(utf8.decoder).listen((contents) {
-      pairingCode = json.decode(contents)['data'][0]['pairingCode'];
-    });
+    var response = await _doRequest(request);
+    String pairingCode = response['data'][0]['pairingCode'];
 
     return url.replace(
       path: apiAccessRequestPath,
@@ -63,9 +59,9 @@ class Client {
 
   /// Creates an invoice on the remote.
   Map<String, dynamic> createInvoice(double price, String currency) async {
-    authorizationToken ??= await _getToken();
+    authorizationToken ??= await getToken();
 
-    HttpClientResponse response = await httpClient
+    HttpClientRequest request = await httpClient
         .postUrl(url.replace(path: invoicesPath))
         .then((HttpClientRequest request) {
       Map<String, dynamic> params = {
@@ -82,12 +78,12 @@ class Client {
       request.headers.contentType = ContentType.json;
       request.write(jsonEncode(params));
 
-      return request.close();
+      return request;
     });
 
-    var body = await response.transform(utf8.decoder).join();
+    var body = await _doRequest(request);
 
-    return jsonDecode(body);
+    return body;
   }
 
   Map<String, dynamic> getInvoice(String id) async {
@@ -96,36 +92,45 @@ class Client {
         .then((HttpClientRequest request) {
       request.headers.contentType = ContentType.json;
 
-      return request.close();
+      return request;
     });
 
-    var response = await request;
+    var response = await _doRequest(request);
 
-    return jsonDecode(await response.transform(utf8.decoder).join());
+    return response;
   }
 
   /// Returns a token which is required to create a invoice.
-  String _getToken() async {
+  String getToken() async {
     // Annoyingly the Dart compiler doesn't correctly infer the sub type.
     ECPublicKey publicKey = keyPair.publicKey;
     var request = await httpClient.getUrl(url.replace(path: tokenPath));
     request.headers
         .set('X-Signature', sign(request.uri.toString(), keyPair.privateKey));
     request.headers.set('X-Identity', identity);
-    var response = await request.close();
 
-    var body = jsonDecode(await response.transform(utf8.decoder).join());
+    var body = await _doRequest(request);
 
     return body["data"][0]["pos"];
   }
 
-  Future<HttpClientResponse> _requestPairingCode() async {
+  Map<String, dynamic> _doRequest(HttpClientRequest request) async {
+    HttpClientResponse response = await request.close();
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw Exception("Server returned non 200 status code: ${response.statusCode}");
+    }
+
+    return jsonDecode(await response.transform(utf8.decoder).join());
+  }
+
+  Future<HttpClientRequest> _requestPairingCode() async {
     return await httpClient
         .postUrl(url.replace(path: tokenPath))
         .then((HttpClientRequest request) {
       request.headers.contentType = ContentType.json;
       request.write("{'id':'$clientId', 'facade': 'pos'}");
-      return request.close();
+      return request;
     });
   }
 

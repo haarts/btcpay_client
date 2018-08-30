@@ -111,5 +111,6 @@ ECPublicKey _derivePublicKeyFrom(ECPrivateKey privateKey) {
 Uint8List _seed() {
   var random = Random.secure();
   var seed = List<int>.generate(32, (_) => random.nextInt(256));
+
   return Uint8List.fromList(seed);
 }

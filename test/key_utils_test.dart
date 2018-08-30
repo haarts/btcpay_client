@@ -22,7 +22,7 @@ void main() {
 
     await save('/tmp/d', privateKey);
 
-    AsymmetricKeyPair loadedKeyPair = await load('/tmp/d');
+    AsymmetricKeyPair loadedKeyPair = await loadFromFile('/tmp/d');
 
     ECPrivateKey loadedPrivateKey = loadedKeyPair.privateKey;
     expect(loadedPrivateKey.d, equals(privateKey.d));

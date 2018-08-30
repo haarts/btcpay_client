@@ -9,12 +9,14 @@ import 'package:btcpay_client/btcpay-client.dart';
 import 'package:btcpay_client/key_utils.dart';
 
 MockWebServer server;
+Client client;
 
 void main() {
-
-  setUp(() {
+  setUp(() async {
     server = MockWebServer();
-    server.start();
+    await server.start();
+
+    client = Client(server.url, randomSecp256k1KeyPair());
   });
 
   tearDown(() {
@@ -31,17 +33,29 @@ void main() {
   test('Returns an URL to complete client side initiated pairing', () async {
     server.enqueue(body: '{"data": [{"pairingCode": "abcd"}]}');
 
-    var client = Client(server.url, randomSecp256k1KeyPair());
     var response = await client.clientInitiatedPairing();
-    
-    expect(response, allOf([
-      contains('api-access-request'),
-      contains('abcd'),
-     ]));
+
+    expect(
+        response,
+        allOf([
+          contains('api-access-request'),
+          contains('abcd'),
+        ]));
+  });
+
+  test('Throws an exception when remote returns non 200', () async {
+    server.enqueue(httpCode: 400);
+
+    expect(
+        client.clientInitiatedPairing(),
+        throwsA(predicate(
+            (e) => e.message == "Server returned non 200 status code: 400")));
   });
 
   test('Get a token', () async {
-    server.enqueue(body: '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
+    server.enqueue(
+        body:
+            '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
     var client = Client(server.url, randomSecp256k1KeyPair());
 
     var response = await client.getToken();
@@ -50,19 +64,25 @@ void main() {
   });
 
   test('Signs a http request', () async {
-    server.enqueue(body: '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
+    server.enqueue(
+        body:
+            '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
     var client = Client(server.url, randomSecp256k1KeyPair());
 
     var response = await client.getToken();
-		var request = server.takeRequest();
+    var request = server.takeRequest();
 
     expect(request.headers['x-signature'], isNotNull);
     expect(request.headers['x-identity'], isNotNull);
   });
 
   test('Creates an invoice', () async {
-    var cannedResponse = await File('test/files/create_invoice_response.json').readAsString();
-		server.enqueue(body: cannedResponse);
+    server.enqueue(
+        body:
+            '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
+    var cannedResponse =
+        await File('test/files/create_invoice_response.json').readAsString();
+    server.enqueue(body: cannedResponse);
     var client = Client(server.url, randomSecp256k1KeyPair());
 
     var response = await client.createInvoice(1.0, "CHF");
@@ -74,8 +94,9 @@ void main() {
   });
 
   test('Get an invoice', () async {
-    var cannedResponse = await File('test/files/get_invoice_response.json').readAsString();
-		server.enqueue(body: cannedResponse);
+    var cannedResponse =
+        await File('test/files/get_invoice_response.json').readAsString();
+    server.enqueue(body: cannedResponse);
     var client = Client(server.url, randomSecp256k1KeyPair());
 
     var response = await client.getInvoice("abcde");
