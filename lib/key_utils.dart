@@ -17,10 +17,11 @@ import "package:pointycastle/digests/sha256.dart";
 import "package:pointycastle/random/fortuna_random.dart";
 
 final sha256digest = SHA256Digest();
+final ecParams = ECCurve_secp256k1();
 
 /// Generates a random secp256k1 key pair.
 AsymmetricKeyPair<PublicKey, PrivateKey> randomSecp256k1KeyPair() {
-  var keyParams = ECKeyGeneratorParameters(ECCurve_secp256k1());
+  var keyParams = ECKeyGeneratorParameters(ecParams);
 
   var random = FortunaRandom();
   random.seed(KeyParameter(_seed()));
@@ -39,10 +40,16 @@ void save(String fileName, ECPrivateKey privateKey) async {
 }
 
 /// Loads a private key from file and reconstructs the public key.
-AsymmetricKeyPair load(String fileName) async {
+AsymmetricKeyPair loadFromFile(String fileName) async {
   var file = File(fileName);
   var d = await file.readAsString();
-  ECPrivateKey privateKey = ECPrivateKey(BigInt.parse(d), ECCurve_secp256k1());
+
+	return loadFromD(BigInt.parse(d));
+}
+
+/// Reconstructs a private key and returns a key pair.
+AsymmetricKeyPair loadFromD(BigInt d) {
+  ECPrivateKey privateKey = ECPrivateKey(d, ecParams);
   ECPublicKey publicKey = _derivePublicKeyFrom(privateKey);
 
   return AsymmetricKeyPair(publicKey, privateKey);
@@ -98,7 +105,6 @@ String _encodeSignature(ECSignature signature) {
 }
 
 ECPublicKey _derivePublicKeyFrom(ECPrivateKey privateKey) {
-  var ecParams = ECCurve_secp256k1();
   return ECPublicKey(ecParams.G * privateKey.d, ecParams);
 }
 
