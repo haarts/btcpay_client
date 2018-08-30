@@ -115,7 +115,6 @@ class Client {
     var response = await request.close();
 
     var body = jsonDecode(await response.transform(utf8.decoder).join());
-    print('token response: $body');
 
     return body["data"][0]["pos"];
   }
