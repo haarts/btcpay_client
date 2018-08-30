@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:btcpay_client/btcpay-client.dart';
+import 'package:btcpay_client/btcpay_client.dart';
 import 'package:btcpay_client/key_utils.dart';
 
 void main(List<String> args) async {

@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import "package:mock_web_server/mock_web_server.dart";
 import "package:pointycastle/api.dart";
 
-import 'package:btcpay_client/btcpay-client.dart';
+import 'package:btcpay_client/btcpay_client.dart';
 import 'package:btcpay_client/key_utils.dart';
 
 MockWebServer server;
