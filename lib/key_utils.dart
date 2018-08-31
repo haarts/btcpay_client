@@ -32,27 +32,35 @@ AsymmetricKeyPair<PublicKey, PrivateKey> randomSecp256k1KeyPair() {
   return generator.generateKeyPair();
 }
 
-/// Saves the private key to a file.
-void save(String fileName, ECPrivateKey privateKey) async {
-  var file = File(fileName);
-  await file.create();
-  await file.writeAsString(privateKey.d.toString());
-}
-
-/// Loads a private key from file and reconstructs the public key.
-AsymmetricKeyPair loadFromFile(String fileName) async {
-  var file = File(fileName);
-  var d = await file.readAsString();
-
-	return loadFromD(BigInt.parse(d));
+/// Returns a serialized form of the private key which can be stored.
+/// It might seem odd to have such a trivial method but doing this prevents
+/// the user of this library from including a bunch of PointyCastle
+/// dependencies.
+BigInt serialize(ECPrivateKey privateKey) {
+  return privateKey.d;
 }
 
 /// Reconstructs a private key and returns a key pair.
-AsymmetricKeyPair loadFromD(BigInt d) {
+AsymmetricKeyPair deserialize(BigInt d) {
   ECPrivateKey privateKey = ECPrivateKey(d, ecParams);
   ECPublicKey publicKey = _derivePublicKeyFrom(privateKey);
 
   return AsymmetricKeyPair(publicKey, privateKey);
+}
+
+/// Saves the private key to a file.
+void save(String fileName, ECPrivateKey privateKey) async {
+  var file = File(fileName);
+  await file.create();
+  await file.writeAsString(serialize(privateKey).toString());
+}
+
+/// Loads a private key from file and reconstructs the public key.
+AsymmetricKeyPair load(String fileName) async {
+  var file = File(fileName);
+  var d = await file.readAsString();
+
+  return deserialize(BigInt.parse(d));
 }
 
 /// Sign a message.
