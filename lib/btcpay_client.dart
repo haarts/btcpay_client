@@ -45,9 +45,17 @@ class Client {
     this.url = Uri.parse(url);
   }
 
+  /// Pairs a client based on a pairing code provided by the server
+  Map<String, dynamic> serverInitiatedPairing(String pairingCode) async {
+    var request = await _pair(pairingCode);
+    var response = await _doRequest(request);
+
+    return response;
+  }
+
   /// Returns a URL to which the user must go to approve the pairing.
   String clientInitiatedPairing() async {
-    var request = await _requestPairingCode();
+    var request = await _pair();
     var response = await _doRequest(request);
     String pairingCode = response['data'][0]['pairingCode'];
 
@@ -118,18 +126,28 @@ class Client {
     HttpClientResponse response = await request.close();
 
     if (response.statusCode != HttpStatus.ok) {
-      throw Exception("Server returned non 200 status code: ${response.statusCode}");
+      throw Exception(
+          "Server returned non 200 status code: ${response.statusCode}");
     }
 
     return jsonDecode(await response.transform(utf8.decoder).join());
   }
 
-  Future<HttpClientRequest> _requestPairingCode() async {
+  Future<HttpClientRequest> _pair([String pairingCode]) async {
+    Map<String, String> params = {
+      'id': clientId,
+      'facade': 'pos',
+    };
+
+    if (pairingCode != null) {
+      params['pairingCode'] = pairingCode;
+    }
+
     return await httpClient
         .postUrl(url.replace(path: tokenPath))
         .then((HttpClientRequest request) {
       request.headers.contentType = ContentType.json;
-      request.write("{'id':'$clientId', 'facade': 'pos'}");
+      request.write(jsonEncode(params));
       return request;
     });
   }
