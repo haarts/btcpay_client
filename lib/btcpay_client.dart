@@ -45,6 +45,9 @@ class Client {
     this.url = Uri.parse(url);
   }
 
+  Client.fromBarePrivateKey(String url, BigInt privateKey)
+      : this(url, deserialize(privateKey));
+
   /// Pairs a client based on a pairing code provided by the server
   Map<String, dynamic> serverInitiatedPairing(String pairingCode) async {
     var request = await _pair(pairingCode);
