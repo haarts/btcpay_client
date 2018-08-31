@@ -130,7 +130,7 @@ class Client {
 
     if (response.statusCode != HttpStatus.ok) {
       throw Exception(
-          "Server returned non 200 status code: ${response.statusCode}");
+          "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri}");
     }
 
     return jsonDecode(await response.transform(utf8.decoder).join());
