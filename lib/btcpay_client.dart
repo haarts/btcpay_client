@@ -167,4 +167,7 @@ class Client {
     versionedDigest.addAll(checksum);
     return Base58Codec(alphabet).encode(versionedDigest);
   }
+
+  @override
+  String toString() => "Client(url: $url)";
 }
