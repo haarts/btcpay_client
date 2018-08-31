@@ -20,7 +20,7 @@ final sha256digest = SHA256Digest();
 final ecParams = ECCurve_secp256k1();
 
 /// Generates a random secp256k1 key pair.
-AsymmetricKeyPair<PublicKey, PrivateKey> randomSecp256k1KeyPair() {
+AsymmetricKeyPair randomSecp256k1KeyPair() {
   var keyParams = ECKeyGeneratorParameters(ecParams);
 
   var random = FortunaRandom();
