@@ -122,6 +122,9 @@ class Client {
 
     var body = await _doRequest(request);
 
+    if (body["data"].isEmpty) {
+      return "";
+    }
     return body["data"][0]["pos"];
   }
 
