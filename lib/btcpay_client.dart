@@ -57,8 +57,8 @@ class Client {
   }
 
   /// Returns a URL to which the user must go to approve the pairing.
-  String clientInitiatedPairing() async {
-    var request = await _pair();
+  String clientInitiatedPairing([String label]) async {
+    var request = await _pair(label);
     var response = await _doRequest(request);
     String pairingCode = response['data'][0]['pairingCode'];
 
@@ -139,7 +139,7 @@ class Client {
     return jsonDecode(await response.transform(utf8.decoder).join());
   }
 
-  Future<HttpClientRequest> _pair([String pairingCode]) async {
+  Future<HttpClientRequest> _pair([String label, String pairingCode]) async {
     Map<String, String> params = {
       'id': clientId,
       'facade': 'pos',
@@ -147,6 +147,10 @@ class Client {
 
     if (pairingCode != null) {
       params['pairingCode'] = pairingCode;
+    }
+
+    if (label != null) {
+      params['label'] = label;
     }
 
     return await httpClient
