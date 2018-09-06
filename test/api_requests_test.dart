@@ -48,8 +48,8 @@ void main() {
 
     expect(
         client.clientInitiatedPairing(),
-        throwsA(predicate(
-            (e) => e.message == "Server returned non 200 status code: 400")));
+        throwsA(predicate((e) =>
+            e.message.startsWith("Server returned non 200 status code: 400"))));
   });
 
   test('Get a token', () async {

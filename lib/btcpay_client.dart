@@ -49,7 +49,8 @@ class Client {
       : this(url, deserialize(privateKey));
 
   /// Pairs a client based on a pairing code provided by the server
-  Map<String, dynamic> serverInitiatedPairing(String pairingCode) async {
+  Future<Map<String, dynamic>> serverInitiatedPairing(
+      String pairingCode) async {
     var request = await _pair(pairingCode);
     var response = await _doRequest(request);
 
@@ -57,7 +58,7 @@ class Client {
   }
 
   /// Returns a URL to which the user must go to approve the pairing.
-  String clientInitiatedPairing([String label]) async {
+  Future<String> clientInitiatedPairing([String label]) async {
     var request = await _pair(label);
     var response = await _doRequest(request);
     String pairingCode = response['data'][0]['pairingCode'];
@@ -69,7 +70,8 @@ class Client {
   }
 
   /// Creates an invoice on the remote.
-  Map<String, dynamic> createInvoice(double price, String currency) async {
+  Future<Map<String, dynamic>> createInvoice(
+      double price, String currency) async {
     authorizationToken ??= await getToken();
 
     HttpClientRequest request = await httpClient
@@ -97,7 +99,7 @@ class Client {
     return body;
   }
 
-  Map<String, dynamic> getInvoice(String id) async {
+  Future<Map<String, dynamic>> getInvoice(String id) async {
     var request = await httpClient
         .getUrl(url.replace(path: '$invoicesPath/$id'))
         .then((HttpClientRequest request) {
@@ -112,7 +114,7 @@ class Client {
   }
 
   /// Returns a token which is required to create a invoice.
-  String getToken() async {
+  Future<String> getToken() async {
     // Annoyingly the Dart compiler doesn't correctly infer the sub type.
     ECPublicKey publicKey = keyPair.publicKey;
     var request = await httpClient.getUrl(url.replace(path: tokenPath));
@@ -128,7 +130,7 @@ class Client {
     return body["data"][0]["pos"];
   }
 
-  Map<String, dynamic> _doRequest(HttpClientRequest request) async {
+  Future<Map<String, dynamic>> _doRequest(HttpClientRequest request) async {
     HttpClientResponse response = await request.close();
 
     if (response.statusCode != HttpStatus.ok) {
@@ -136,7 +138,9 @@ class Client {
           "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri}");
     }
 
-    return jsonDecode(await response.transform(utf8.decoder).join());
+    String json = await response.transform(utf8.decoder).join();
+
+    return jsonDecode(json);
   }
 
   Future<HttpClientRequest> _pair([String label, String pairingCode]) async {

@@ -8,8 +8,8 @@ import 'package:btcpay_client/key_utils.dart';
 
 void main(List<String> args) async {
   if (args.length != 1) {
-		print('Please pass a server side generated pairing code.');
-		exit(1);
+    print('Please pass a server side generated pairing code.');
+    exit(1);
   }
 
   var keyPair = randomSecp256k1KeyPair();

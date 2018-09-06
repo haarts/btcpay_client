@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:core';
 import 'dart:io';
 
 import "package:pointycastle/ecc/api.dart";
@@ -12,6 +13,12 @@ void main() async {
 
   var client = Client("https://test2-btc-ltc.forkbitpay.ninja/", keyPair);
 
-  String url = await client.clientInitiatedPairing();
+  String url = await client.clientInitiatedPairing(label());
   print('Visit this url to complete pairing: $url');
+}
+
+String label() {
+  var now = DateTime.now();
+
+  return 'cli - ${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}';
 }

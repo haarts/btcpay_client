@@ -9,4 +9,3 @@ void main(List<String> args) async {
       Client("https://test2-btc-ltc.forkbitpay.ninja/", await load('/tmp/d'));
   print(await client.createInvoice(double.parse(args[0]), args[1]));
 }
-
