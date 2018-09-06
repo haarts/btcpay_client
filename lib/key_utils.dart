@@ -2,6 +2,7 @@ import "dart:io";
 import "dart:convert";
 import "dart:typed_data";
 import "dart:math";
+import "dart:async";
 
 import 'package:convert/convert.dart';
 import 'package:asn1lib/asn1lib.dart';
@@ -49,14 +50,14 @@ AsymmetricKeyPair deserialize(BigInt d) {
 }
 
 /// Saves the private key to a file.
-void save(String fileName, ECPrivateKey privateKey) async {
+Future<void> save(String fileName, ECPrivateKey privateKey) async {
   var file = File(fileName);
   await file.create();
   await file.writeAsString(serialize(privateKey).toString());
 }
 
 /// Loads a private key from file and reconstructs the public key.
-AsymmetricKeyPair load(String fileName) async {
+Future<AsymmetricKeyPair> load(String fileName) async {
   var file = File(fileName);
   var d = await file.readAsString();
 
