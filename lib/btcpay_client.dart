@@ -138,7 +138,7 @@ class Client {
           "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri}");
     }
 
-    String json = await response.transform(utf8.decoder).join();
+    String json = await utf8.decodeStream(response);
 
     return jsonDecode(json);
   }
