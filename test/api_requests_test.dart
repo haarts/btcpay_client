@@ -5,6 +5,7 @@ import "package:mock_web_server/mock_web_server.dart";
 
 import 'package:btcpay_client/btcpay_client.dart';
 import 'package:btcpay_client/key_utils.dart';
+import 'package:btcpay_client/exceptions.dart';
 
 MockWebServer server;
 Client client;
@@ -42,12 +43,21 @@ void main() {
   });
 
   test('Throws an exception when remote returns non 200', () async {
-    server.enqueue(httpCode: 400);
+    server.enqueue(httpCode: 400, body: '{"error":"some error"}');
 
     expect(
         client.clientInitiatedPairing(),
         throwsA(predicate((e) =>
             e.message.startsWith("Server returned non 200 status code: 400"))));
+  });
+
+  test('Throws an NoPaymentMethodAvailable exception', () async {
+    server.enqueue(
+        httpCode: 400,
+        body: '{"error":"No payment method available for this store\\n"}');
+
+    expect(client.clientInitiatedPairing(),
+        throwsA(TypeMatcher<NoPaymentMethodAvailable>()));
   });
 
   test('Get a token', () async {

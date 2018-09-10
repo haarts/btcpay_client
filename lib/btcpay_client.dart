@@ -12,6 +12,7 @@ import "package:pointycastle/digests/sha256.dart";
 import "package:pointycastle/digests/ripemd160.dart";
 
 import "key_utils.dart";
+import "exceptions.dart";
 
 class Client {
   static const String userAgent = '{BTC|Bit}Pay - Dart';
@@ -131,14 +132,20 @@ class Client {
   Future<Map<String, dynamic>> _doRequest(HttpClientRequest request) async {
     HttpClientResponse response = await request.close();
 
-    if (response.statusCode != HttpStatus.ok) {
-      throw Exception(
-          "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri}");
+    // We assume the server ALWAYS returns a nice UTF8 encoded JSON body.
+    Map<String, dynamic> body = jsonDecode(await utf8.decodeStream(response));
+    if (response.statusCode == HttpStatus.ok) {
+      return body;
     }
 
-    String json = await utf8.decodeStream(response);
+    if (NoPaymentMethodAvailable.isDefinedBy(body)) {
+      throw NoPaymentMethodAvailable();
+    }
 
-    return jsonDecode(json);
+    // At some point each and every exception thrown by the backend should have
+    // its own custom Exception.
+    throw Exception(
+        "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri}");
   }
 
   Future<HttpClientRequest> _pair([String label, String pairingCode]) async {
