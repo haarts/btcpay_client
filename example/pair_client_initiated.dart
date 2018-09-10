@@ -7,7 +7,7 @@ void main() async {
   var keyPair = randomSecp256k1KeyPair();
   save('/tmp/d', keyPair.privateKey);
 
-  var client = Client("https://test2-btc-ltc.forkbitpay.ninja/", keyPair);
+  var client = Client("https://btcpay-ch-1.feathercoin.ch", keyPair);
 
   String url = await client.clientInitiatedPairing(label());
   print('Visit this url to complete pairing: $url');

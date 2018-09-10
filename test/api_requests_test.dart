@@ -60,6 +60,15 @@ void main() {
         throwsA(TypeMatcher<NoPaymentMethodAvailable>()));
   });
 
+  test('Throws an Unauthorized exception', () async {
+    server.enqueue(
+        httpCode: 401,
+    );
+
+    expect(client.clientInitiatedPairing(),
+        throwsA(TypeMatcher<Unauthorized>()));
+  });
+
   test('Get a token', () async {
     server.enqueue(
         body:

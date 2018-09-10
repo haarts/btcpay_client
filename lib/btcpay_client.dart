@@ -131,21 +131,25 @@ class Client {
 
   Future<Map<String, dynamic>> _doRequest(HttpClientRequest request) async {
     HttpClientResponse response = await request.close();
-
-    // We assume the server ALWAYS returns a nice UTF8 encoded JSON body.
-    Map<String, dynamic> body = jsonDecode(await utf8.decodeStream(response));
-    if (response.statusCode == HttpStatus.ok) {
-      return body;
+    if (response.statusCode == HttpStatus.unauthorized) {
+      throw Unauthorized(request.uri.toString(), request.method);
     }
 
-    if (NoPaymentMethodAvailable.isDefinedBy(body)) {
+    // We assume the server ALWAYS returns a nice UTF8 encoded JSON body.
+    var body = await utf8.decodeStream(response);
+    Map<String, dynamic> json = jsonDecode(body);
+    if (response.statusCode == HttpStatus.ok) {
+      return json;
+    }
+
+    if (NoPaymentMethodAvailable.isDefinedBy(json)) {
       throw NoPaymentMethodAvailable();
     }
 
     // At some point each and every exception thrown by the backend should have
     // its own custom Exception.
     throw Exception(
-        "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri}");
+        "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri} - $body");
   }
 
   Future<HttpClientRequest> _pair([String label, String pairingCode]) async {
