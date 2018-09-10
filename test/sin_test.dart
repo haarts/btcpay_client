@@ -5,7 +5,6 @@ import "package:pointycastle/ecc/api.dart";
 import "package:pointycastle/api.dart";
 
 import 'package:btcpay_client/btcpay_client.dart';
-import 'package:btcpay_client/key_utils.dart';
 
 void main() {
   test('Generate SIN from EC public key', () {

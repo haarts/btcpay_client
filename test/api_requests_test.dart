@@ -1,9 +1,7 @@
-import "dart:convert";
 import "dart:io";
 
 import 'package:test/test.dart';
 import "package:mock_web_server/mock_web_server.dart";
-import "package:pointycastle/api.dart";
 
 import 'package:btcpay_client/btcpay_client.dart';
 import 'package:btcpay_client/key_utils.dart';
@@ -69,7 +67,7 @@ void main() {
             '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
     var client = Client(server.url, randomSecp256k1KeyPair());
 
-    var response = await client.getToken();
+    await client.getToken();
     var request = server.takeRequest();
 
     expect(request.headers['x-signature'], isNotNull);
@@ -99,7 +97,7 @@ void main() {
     server.enqueue(body: cannedResponse);
     var client = Client(server.url, randomSecp256k1KeyPair());
 
-    var response = await client.getInvoice("abcde");
+    await client.getInvoice("abcde");
     var request = server.takeRequest();
 
     expect(request.uri.path, '/invoices/abcde');

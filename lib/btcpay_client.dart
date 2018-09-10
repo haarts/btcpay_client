@@ -14,25 +14,25 @@ import "package:pointycastle/digests/ripemd160.dart";
 import "key_utils.dart";
 
 class Client {
-  const String userAgent = '{BTC|Bit}Pay - Dart';
+  static const String userAgent = '{BTC|Bit}Pay - Dart';
 
   Uri url;
   AsymmetricKeyPair keyPair;
   HttpClient httpClient;
   String authorizationToken;
 
-  const String tokenPath = 'tokens';
-  const String apiAccessRequestPath = 'api-access-request';
-  const String invoicesPath = 'invoices';
+  static const String tokenPath = 'tokens';
+  static const String apiAccessRequestPath = 'api-access-request';
+  static const String invoicesPath = 'invoices';
 
   /// clientId aka SIN
   String clientId;
   String identity;
 
-  const String alphabet =
+  static const String alphabet =
       "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-  const int prefix = 0x0F;
-  const int sinType = 0x02;
+  static const int prefix = 0x0F;
+  static const int sinType = 0x02;
 
   static final ripemd160digest = RIPEMD160Digest();
   static final sha256digest = SHA256Digest();
@@ -115,8 +115,6 @@ class Client {
 
   /// Returns a token which is required to create a invoice.
   Future<String> getToken() async {
-    // Annoyingly the Dart compiler doesn't correctly infer the sub type.
-    ECPublicKey publicKey = keyPair.publicKey;
     var request = await httpClient.getUrl(url.replace(path: tokenPath));
     request.headers
         .set('X-Signature', sign(request.uri.toString(), keyPair.privateKey));
