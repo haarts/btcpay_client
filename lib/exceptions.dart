@@ -1,14 +1,14 @@
 class Unauthorized implements Exception {
-	static const String _message = "Access denied";
+  static const String _message = "Access denied";
 
-	final String url;
-	final String method;
+  final String url;
+  final String method;
 
-	const Unauthorized(this.url, this.method);
+  const Unauthorized(this.url, this.method);
 
-	String toString() {
-  	return "$_message - $method $url";
-	}
+  String toString() {
+    return "$_message - $method $url";
+  }
 }
 
 class NoPaymentMethodAvailable implements Exception {
