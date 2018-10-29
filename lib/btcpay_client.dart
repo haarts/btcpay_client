@@ -15,29 +15,43 @@ import "key_utils.dart";
 import "exceptions.dart";
 
 class Client {
+  /// Used to send an appropriate User-Agent header with the HTTP requests.
   static const String userAgent = '{BTC|Bit}Pay - Dart';
 
+  /// The URL of the BTCPay server.
   Uri url;
+
+  /// The key pair used to sign requests.
   AsymmetricKeyPair keyPair;
-  HttpClient httpClient;
+
+  /// This token is required to make a successful request.
   String authorizationToken;
+
+  HttpClient httpClient;
 
   static const String tokenPath = 'tokens';
   static const String apiAccessRequestPath = 'api-access-request';
   static const String invoicesPath = 'invoices';
 
-  /// clientId aka SIN
+  /// aka SIN. This is generated from the public key.
   String clientId;
+
+  /// Derived from the [clientId] and used for the 'X-Identity' header.
   String identity;
 
-  static const String alphabet =
+  static const String _alphabet =
       "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-  static const int prefix = 0x0F;
-  static const int sinType = 0x02;
 
-  static final ripemd160digest = RIPEMD160Digest();
-  static final sha256digest = SHA256Digest();
+  /// As per https://en.bitcoin.it/wiki/Identity_protocol_v1
+  static const int _prefix = 0x0F;
 
+  /// Bitpay uses ephemeral SIN's. As per https://en.bitcoin.it/wiki/Identity_protocol_v1
+  static const int _sinType = 0x02;
+
+  static final _ripemd160digest = RIPEMD160Digest();
+  static final _sha256digest = SHA256Digest();
+
+	/// Create a client based on a server URL and a `AsymmetricKeyPair`.
   Client(String url, this.keyPair) {
     clientId = _convertToClientId(keyPair.publicKey);
     identity = hex.encoder
@@ -46,6 +60,8 @@ class Client {
     this.url = Uri.parse(url);
   }
 
+  /// Create a client based on a server URL and a `BigInt` representation of a
+  /// private key.
   Client.fromBarePrivateKey(String url, BigInt privateKey)
       : this(url, deserialize(privateKey));
 
@@ -177,15 +193,15 @@ class Client {
 
   /// Converts a public key to a SIN type identifier as per https://en.bitcoin.it/wiki/Identity_protocol_v1.
   String _convertToClientId(ECPublicKey publicKey) {
-    var versionedDigest = [prefix, sinType];
-    var digest =
-        ripemd160digest.process(sha256digest.process(publicKey.Q.getEncoded()));
+    var versionedDigest = [_prefix, _sinType];
+    var digest = _ripemd160digest
+        .process(_sha256digest.process(publicKey.Q.getEncoded()));
     versionedDigest.addAll(digest);
-    var checksum = sha256digest
-        .process(sha256digest.process(Uint8List.fromList(versionedDigest)))
+    var checksum = _sha256digest
+        .process(_sha256digest.process(Uint8List.fromList(versionedDigest)))
         .getRange(0, 4);
     versionedDigest.addAll(checksum);
-    return Base58Codec(alphabet).encode(versionedDigest);
+    return Base58Codec(_alphabet).encode(versionedDigest);
   }
 
   @override
