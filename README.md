@@ -9,6 +9,15 @@ This is not a complete library. Pairing and creating invoices is supported but
 other endpoints are not. Note that most of the heavy lifting is done. The 
 generation of the SIN and the signing of requests.
 
+## Installing
+
+Add it to your `pubspec.yaml`:
+
+```
+dependencies:
+  btcpay_client: ^0.1.0
+```
+
 ## Getting Started
 
 Have a look in the [`example`](/example/) directory for several examples.
