@@ -27,7 +27,7 @@ class Client {
   /// This token is required to make a successful request.
   String authorizationToken;
 
-  HttpClient httpClient;
+  HttpClient _httpClient;
 
   static const String tokenPath = 'tokens';
   static const String apiAccessRequestPath = 'api-access-request';
@@ -56,7 +56,7 @@ class Client {
     clientId = _convertToClientId(keyPair.publicKey);
     identity = hex.encoder
         .convert((keyPair.publicKey as ECPublicKey).Q.getEncoded(true));
-    httpClient = HttpClient();
+    _httpClient = HttpClient();
     this.url = Uri.parse(url);
   }
 
@@ -91,7 +91,7 @@ class Client {
       double price, String currency) async {
     authorizationToken ??= await getToken();
 
-    HttpClientRequest request = await httpClient
+    HttpClientRequest request = await _httpClient
         .postUrl(url.replace(path: invoicesPath))
         .then((HttpClientRequest request) {
       Map<String, dynamic> params = {
@@ -117,7 +117,7 @@ class Client {
   }
 
   Future<Map<String, dynamic>> getInvoice(String id) async {
-    var request = await httpClient
+    var request = await _httpClient
         .getUrl(url.replace(path: '$invoicesPath/$id'))
         .then((HttpClientRequest request) {
       request.headers.contentType = ContentType.json;
@@ -132,7 +132,7 @@ class Client {
 
   /// Returns a token which is required to create a invoice.
   Future<String> getToken() async {
-    var request = await httpClient.getUrl(url.replace(path: tokenPath));
+    var request = await _httpClient.getUrl(url.replace(path: tokenPath));
     request.headers
         .set('X-Signature', sign(request.uri.toString(), keyPair.privateKey));
     request.headers.set('X-Identity', identity);
@@ -182,7 +182,7 @@ class Client {
       params['label'] = label;
     }
 
-    return await httpClient
+    return await _httpClient
         .postUrl(url.replace(path: tokenPath))
         .then((HttpClientRequest request) {
       request.headers.contentType = ContentType.json;
