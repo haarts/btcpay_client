@@ -51,7 +51,7 @@ class Client {
   static final _ripemd160digest = RIPEMD160Digest();
   static final _sha256digest = SHA256Digest();
 
-	/// Create a client based on a server URL and a `AsymmetricKeyPair`.
+  /// Create a client based on a server URL and a `AsymmetricKeyPair`.
   Client(String url, this.keyPair) {
     clientId = _convertToClientId(keyPair.publicKey);
     identity = hex.encoder
