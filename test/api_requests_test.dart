@@ -62,11 +62,11 @@ void main() {
 
   test('Throws an Unauthorized exception', () async {
     server.enqueue(
-        httpCode: 401,
+      httpCode: 401,
     );
 
-    expect(client.clientInitiatedPairing(),
-        throwsA(TypeMatcher<Unauthorized>()));
+    expect(
+        client.clientInitiatedPairing(), throwsA(TypeMatcher<Unauthorized>()));
   });
 
   test('Get a token', () async {
