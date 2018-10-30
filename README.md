@@ -15,19 +15,19 @@ Add it to your `pubspec.yaml`:
 
 ```
 dependencies:
-  btcpay_client: ^0.1.0
+  btcpay_client: ^0.1.1
 ```
 
 ## Getting Started
 
-Have a look in the [`example`](/example/) directory for several examples.
+Have a look in the [`example`](example) directory for several examples.
 
 Creating a client is done by passing a URL on which to reach your BTCPay server 
 and either a `BigInt` or a 
 [`AsymmetricKeyPair`](https://pub.dartlang.org/documentation/pointycastle/1.0.0-rc4/pointycastle.api/AsymmetricKeyPair-class.html).
 
-```
-var client = Client.fromBarePrivateKey("url-to-btcpay-server", some-big-int);
+```dart
+var client = Client.fromBarePrivateKey("url-to-btcpay-server", someBigInt);
 await client.createInvoice(10.0, "EUR");
 ```
 
