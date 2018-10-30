@@ -15,7 +15,7 @@ Add it to your `pubspec.yaml`:
 
 ```
 dependencies:
-  btcpay_client: ^0.1.1
+  btcpay_client: ^0.1.2
 ```
 
 ## Getting Started
