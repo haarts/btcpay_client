@@ -1,7 +1,7 @@
-import "dart:io";
-import "dart:core";
 import "dart:async";
 import "dart:convert";
+import "dart:core";
+import "dart:io";
 import "dart:typed_data";
 
 import 'package:convert/convert.dart';
@@ -11,8 +11,8 @@ import "package:pointycastle/ecc/api.dart";
 import "package:pointycastle/digests/sha256.dart";
 import "package:pointycastle/digests/ripemd160.dart";
 
-import "key_utils.dart";
 import "exceptions.dart";
+import "key_utils.dart";
 
 class Client {
   /// Used to send an appropriate User-Agent header with the HTTP requests.
