@@ -5,7 +5,7 @@ author: Kolibri POS authors <info@kolibripos.com>
 homepage: https://github.com/Kolibri-POS/btcpay_client
 
 dependencies:
-    pointycastle: ^1.0.0-rc4
+    pointycastle: ^1.0.1
     base58check: ^1.0.1
     convert: ^2.0.2
     asn1lib: ^0.5.1
@@ -17,6 +17,7 @@ dev_dependencies:
       git: https://gitlab.com/haarts/MockWebServer.git
       version: ^2.1.0
     args: ^1.5.0
+    pedantic: ^1.8.0
 
 environment:
     sdk: ">=2.0.0 <3.0.0"
