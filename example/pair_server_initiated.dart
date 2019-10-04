@@ -10,9 +10,9 @@ void main(List<String> args) async {
   }
 
   var keyPair = randomSecp256k1KeyPair();
-  save('/tmp/d', keyPair.privateKey);
+  await save('/tmp/d', keyPair.privateKey);
 
-  var client = Client("https://test2-btc-ltc.forkbitpay.ninja/", keyPair);
+  var client = Client("https://mainnet.demo.btcpayserver.org/", keyPair);
 
   var response = await client.serverInitiatedPairing(args[0]);
   print(response);
