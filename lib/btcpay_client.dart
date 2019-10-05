@@ -132,13 +132,17 @@ class Client {
 
   /// Returns a token which is required to create a invoice.
   Future<String> getToken() async {
-    var request = await _httpClient.getUrl(url.replace(path: tokenPath));
-    request.headers
-        .set('X-Signature', sign(request.uri.toString(), keyPair.privateKey));
-    request.headers.set('X-Identity', identity);
-
+    var request = await _httpClient.postUrl(url.replace(path: tokenPath));
+    String payload = jsonEncode({
+      "id": clientId,
+      // facade is ignored, always returns merchant
+      "facade": "pos",
+    });
+    request.headers.contentType = ContentType.json;
+    request.headers.set("X-Accept-Version", "2.0.0");
+    request.write(payload);
+    await request.flush();
     var body = await _doRequest(request);
-
     if (body["data"].isEmpty) {
       return "";
     }
