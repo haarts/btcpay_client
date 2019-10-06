@@ -141,12 +141,11 @@ class Client {
     request.headers.contentType = ContentType.json;
     request.headers.set("X-Accept-Version", "2.0.0");
     request.write(payload);
-    await request.flush();
     var body = await _doRequest(request);
     if (body["data"].isEmpty) {
       return "";
     }
-    return body["data"][0]["pos"];
+    return body["data"][0]["token"];
   }
 
   Future<Map<String, dynamic>> _doRequest(HttpClientRequest request) async {
