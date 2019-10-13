@@ -7,7 +7,7 @@ void main() async {
   var keyPair = randomSecp256k1KeyPair();
   await save('/tmp/d', keyPair.privateKey);
 
-  var client = Client("https://mainnet.demo.btcpayserver.org", keyPair);
+  var client = Client("https://testnet.demo.btcpayserver.org", keyPair);
 
   String url = await client.clientInitiatedPairing(label());
   print('Visit this url to complete pairing: $url');

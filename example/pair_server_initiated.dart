@@ -12,7 +12,7 @@ void main(List<String> args) async {
   var keyPair = randomSecp256k1KeyPair();
   await save('/tmp/d', keyPair.privateKey);
 
-  var client = Client("https://mainnet.demo.btcpayserver.org/", keyPair);
+  var client = Client("https://testnet.demo.btcpayserver.org/", keyPair);
 
   var response = await client.serverInitiatedPairing(args[0]);
   print(response);
