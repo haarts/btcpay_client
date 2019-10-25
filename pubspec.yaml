@@ -14,10 +14,11 @@ dependencies:
 dev_dependencies:
     test: ^1.3.4
     mock_web_server:
-      git: https://gitlab.com/haarts/MockWebServer.git
-      version: ^2.1.0
+        git:
+            url: git://github.com/haarts/MockWebServer.git
+            ref: f8079e9f52ac45d920c677e545316a6905eaf819
     args: ^1.5.0
     pedantic: ^1.8.0
 
 environment:
-    sdk: ">=2.0.0 <3.0.0"
+    sdk: ">=2.4.0 <3.0.0"
