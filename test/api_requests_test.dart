@@ -109,6 +109,7 @@ void main() {
 
     var response = await client.createInvoice(1.0, "CHF");
     var request = server.takeRequest();
+    request = server.takeRequest();
 
     expect(response, TypeMatcher<Map<String, dynamic>>());
     expect(request.uri.path, '/invoices');
