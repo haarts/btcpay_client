@@ -81,13 +81,18 @@ void main() {
   });
 
   test('Signs a http request', () async {
+    var client = Client(server.url, randomSecp256k1KeyPair());
     server.enqueue(
         body:
             '{"data":[{"token":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
-    var client = Client(server.url, randomSecp256k1KeyPair());
+    var cannedResponse =
+        await File('test/files/create_invoice_response.json').readAsString();
+    server.enqueue(body: cannedResponse);
 
-    await client.getToken();
+    await client.createInvoice(1.0, "CHF");
+    // createInvoice also sets the token => take 2 requests
     var request = server.takeRequest();
+    request = server.takeRequest();
 
     expect(request.headers['x-signature'], isNotNull);
     expect(request.headers['x-identity'], isNotNull);
