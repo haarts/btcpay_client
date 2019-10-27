@@ -72,7 +72,7 @@ void main() {
   test('Get a token', () async {
     server.enqueue(
         body:
-            '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
+            '{"data":[{"token":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
     var client = Client(server.url, randomSecp256k1KeyPair());
 
     var response = await client.getToken();
@@ -83,7 +83,7 @@ void main() {
   test('Signs a http request', () async {
     server.enqueue(
         body:
-            '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
+            '{"data":[{"token":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
     var client = Client(server.url, randomSecp256k1KeyPair());
 
     await client.getToken();
@@ -96,7 +96,7 @@ void main() {
   test('Creates an invoice', () async {
     server.enqueue(
         body:
-            '{"data":[{"pos":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
+            '{"data":[{"token":"EM1mSreZ2rkeLM772z5AbHF44ekzHcA3SksFYNesu8yo"}]}');
     var cannedResponse =
         await File('test/files/create_invoice_response.json').readAsString();
     server.enqueue(body: cannedResponse);
