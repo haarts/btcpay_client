@@ -1,3 +1,7 @@
+## 0.1.4
+* Bump dependencies
+* Fix new linter errors
+
 ## 0.1.3
 
 * Bump pointycastle to final release
