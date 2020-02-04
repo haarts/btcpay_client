@@ -1,7 +1,7 @@
-import "dart:io";
+import 'dart:io';
 
 import 'package:test/test.dart';
-import "package:mock_web_server/mock_web_server.dart";
+import 'package:mock_web_server/mock_web_server.dart';
 
 import 'package:btcpay_client/btcpay_client.dart';
 import 'package:btcpay_client/key_utils.dart';
@@ -23,7 +23,7 @@ void main() {
   });
 
   test('Client stores base URL', () {
-    var url = "https://irrelevant";
+    var url = 'https://irrelevant';
     var client = Client(url, randomSecp256k1KeyPair());
 
     expect(client.url.toString(), equals(url));
@@ -48,7 +48,7 @@ void main() {
     expect(
         client.clientInitiatedPairing(),
         throwsA(predicate((e) =>
-            e.message.startsWith("Server returned non 200 status code: 400"))));
+            e.message.startsWith('Server returned non 200 status code: 400'))));
   });
 
   test('Throws an NoPaymentMethodAvailable exception', () async {
@@ -89,7 +89,7 @@ void main() {
         await File('test/files/create_invoice_response.json').readAsString();
     server.enqueue(body: cannedResponse);
 
-    await client.createInvoice(1.0, "CHF");
+    await client.createInvoice(1.0, 'CHF');
     // createInvoice also sets the token => take 2 requests
     var request = server.takeRequest();
     request = server.takeRequest();
@@ -107,7 +107,7 @@ void main() {
     server.enqueue(body: cannedResponse);
     var client = Client(server.url, randomSecp256k1KeyPair());
 
-    var response = await client.createInvoice(1.0, "CHF");
+    var response = await client.createInvoice(1.0, 'CHF');
     var request = server.takeRequest();
     request = server.takeRequest();
 
@@ -122,7 +122,7 @@ void main() {
     server.enqueue(body: cannedResponse);
     var client = Client(server.url, randomSecp256k1KeyPair());
 
-    await client.getInvoice("abcde");
+    await client.getInvoice('abcde');
     var request = server.takeRequest();
 
     expect(request.uri.path, '/invoices/abcde');

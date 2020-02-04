@@ -1,21 +1,21 @@
-import "dart:async";
-import "dart:convert";
-import "dart:io";
-import "dart:math";
-import "dart:typed_data";
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:asn1lib/asn1lib.dart';
-import "package:pointycastle/pointycastle.dart";
-import "package:pointycastle/api.dart";
-import "package:pointycastle/ecc/api.dart";
-import "package:pointycastle/ecc/curves/secp256k1.dart";
-import "package:pointycastle/signers/ecdsa_signer.dart";
-import "package:pointycastle/key_generators/api.dart";
-import "package:pointycastle/key_generators/ec_key_generator.dart";
-import "package:pointycastle/macs/hmac.dart";
-import "package:pointycastle/digests/sha256.dart";
-import "package:pointycastle/random/fortuna_random.dart";
+import 'package:pointycastle/pointycastle.dart';
+import 'package:pointycastle/api.dart';
+import 'package:pointycastle/ecc/api.dart';
+import 'package:pointycastle/ecc/curves/secp256k1.dart';
+import 'package:pointycastle/signers/ecdsa_signer.dart';
+import 'package:pointycastle/key_generators/api.dart';
+import 'package:pointycastle/key_generators/ec_key_generator.dart';
+import 'package:pointycastle/macs/hmac.dart';
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/random/fortuna_random.dart';
 
 final sha256digest = SHA256Digest();
 final ecParams = ECCurve_secp256k1();
@@ -43,7 +43,9 @@ BigInt serialize(ECPrivateKey privateKey) {
 
 /// Reconstructs a private key and returns a key pair.
 AsymmetricKeyPair deserialize(BigInt d) {
+  // ignore: omit_local_variable_types
   ECPrivateKey privateKey = ECPrivateKey(d, ecParams);
+  // ignore: omit_local_variable_types
   ECPublicKey publicKey = _derivePublicKeyFrom(privateKey);
 
   return AsymmetricKeyPair(publicKey, privateKey);
@@ -66,6 +68,7 @@ Future<AsymmetricKeyPair> load(String fileName) async {
 
 /// Sign a message.
 String sign(String message, ECPrivateKey key) {
+  // ignore: omit_local_variable_types
   ECDSASigner signer = _createSigner(key);
   ECSignature signature = signer.generateSignature(utf8.encode(message));
 
@@ -74,7 +77,9 @@ String sign(String message, ECPrivateKey key) {
 
 /// Verify a message.
 bool verify(String message, String signature, ECPublicKey key) {
+  // ignore: omit_local_variable_types
   ECDSASigner verifier = _createVerifier(key);
+  // ignore: omit_local_variable_types
   ECSignature decodedSignature = _decodeSignature(signature);
 
   return verifier.verifySignature(utf8.encode(message), decodedSignature);

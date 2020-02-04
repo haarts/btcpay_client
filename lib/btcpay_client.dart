@@ -1,18 +1,18 @@
-import "dart:async";
-import "dart:convert";
-import "dart:core";
-import "dart:io";
-import "dart:typed_data";
+import 'dart:async';
+import 'dart:convert';
+import 'dart:core';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
-import "package:base58check/base58.dart";
-import "package:pointycastle/api.dart";
-import "package:pointycastle/ecc/api.dart";
-import "package:pointycastle/digests/sha256.dart";
-import "package:pointycastle/digests/ripemd160.dart";
+import 'package:base58check/base58.dart';
+import 'package:pointycastle/api.dart';
+import 'package:pointycastle/ecc/api.dart';
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/digests/ripemd160.dart';
 
-import "exceptions.dart";
-import "key_utils.dart";
+import 'exceptions.dart';
+import 'key_utils.dart';
 
 class Client {
   /// Used to send an appropriate User-Agent header with the HTTP requests.
@@ -40,7 +40,7 @@ class Client {
   String identity;
 
   static const String _alphabet =
-      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+      '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
   /// As per https://en.bitcoin.it/wiki/Identity_protocol_v1
   static const int _prefix = 0x0F;
@@ -91,14 +91,14 @@ class Client {
       double price, String currency) async {
     authorizationToken ??= await getToken();
 
-    HttpClientRequest request = await _httpClient
+    var request = await _httpClient
         .postUrl(url.replace(path: invoicesPath))
         .then((HttpClientRequest request) {
-      Map<String, dynamic> params = {
-        "token": authorizationToken,
-        "id": clientId,
-        "price": price,
-        "currency": currency,
+      var params = {
+        'token': authorizationToken,
+        'id': clientId,
+        'price': price,
+        'currency': currency,
       };
       request.headers.set(
         'X-Signature',
@@ -133,23 +133,23 @@ class Client {
   /// Returns a token which is required to create a invoice.
   Future<String> getToken() async {
     var request = await _httpClient.postUrl(url.replace(path: tokenPath));
-    String payload = jsonEncode({
-      "id": clientId,
+    var payload = jsonEncode({
+      'id': clientId,
       // facade is ignored, always returns merchant
-      "facade": "pos",
+      'facade': 'pos',
     });
     request.headers.contentType = ContentType.json;
-    request.headers.set("X-Accept-Version", "2.0.0");
+    request.headers.set('X-Accept-Version', '2.0.0');
     request.write(payload);
     var body = await _doRequest(request);
-    if (body["data"].isEmpty) {
-      return "";
+    if (body['data'].isEmpty) {
+      return '';
     }
-    return body["data"][0]["token"];
+    return body['data'][0]['token'];
   }
 
   Future<Map<String, dynamic>> _doRequest(HttpClientRequest request) async {
-    HttpClientResponse response = await request.close();
+    var response = await request.close();
     if (response.statusCode == HttpStatus.unauthorized) {
       throw Unauthorized(request.uri.toString(), request.method);
     }
@@ -168,11 +168,11 @@ class Client {
     // At some point each and every exception thrown by the backend should have
     // its own custom Exception.
     throw Exception(
-        "Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri} - $body");
+        'Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri} - $body');
   }
 
   Future<HttpClientRequest> _pair([String label, String pairingCode]) async {
-    Map<String, String> params = {
+    var params = {
       'id': clientId,
       'facade': 'pos',
     };
@@ -208,5 +208,5 @@ class Client {
   }
 
   @override
-  String toString() => "Client(url: $url)";
+  String toString() => 'Client(url: $url)';
 }

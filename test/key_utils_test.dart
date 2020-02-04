@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:test/test.dart';
-import "package:pointycastle/api.dart";
-import "package:pointycastle/ecc/api.dart";
+import 'package:pointycastle/ecc/api.dart';
 
 import 'package:btcpay_client/key_utils.dart';
 
@@ -15,13 +14,13 @@ void main() {
   });
 
   test('Loads key from disk', () async {
-    AsymmetricKeyPair keyPair = randomSecp256k1KeyPair();
+    var keyPair = randomSecp256k1KeyPair();
     ECPrivateKey privateKey = keyPair.privateKey;
     ECPublicKey publicKey = keyPair.publicKey;
 
     await save('/tmp/d', privateKey);
 
-    AsymmetricKeyPair loadedKeyPair = await load('/tmp/d');
+    var loadedKeyPair = await load('/tmp/d');
 
     ECPrivateKey loadedPrivateKey = loadedKeyPair.privateKey;
     expect(loadedPrivateKey.d, equals(privateKey.d));
@@ -31,7 +30,7 @@ void main() {
   });
 
   test('Sign message', () {
-    var message = "random message";
+    var message = 'random message';
     var keyPair = randomSecp256k1KeyPair();
     var signature = sign(message, keyPair.privateKey);
 
