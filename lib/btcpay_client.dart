@@ -68,7 +68,7 @@ class Client {
   /// Pairs a client based on a pairing code provided by the server
   Future<Map<String, dynamic>> serverInitiatedPairing(
       String pairingCode) async {
-    var request = await _pair(pairingCode);
+    var request = await _pair(pairingCode: pairingCode, label: label);
     var response = await _doRequest(request);
 
     return response;
@@ -76,7 +76,7 @@ class Client {
 
   /// Returns a URL to which the user must go to approve the pairing.
   Future<String> clientInitiatedPairing([String label]) async {
-    var request = await _pair(label);
+    var request = await _pair(label: label);
     var response = await _doRequest(request);
     String pairingCode = response['data'][0]['pairingCode'];
 
@@ -171,7 +171,7 @@ class Client {
         'Server returned non 200 status code: ${response.statusCode} - ${request.method} - ${request.uri} - $body');
   }
 
-  Future<HttpClientRequest> _pair([String label, String pairingCode]) async {
+  Future<HttpClientRequest> _pair({String label, String pairingCode}) async {
     var params = {
       'id': clientId,
       'facade': 'pos',
