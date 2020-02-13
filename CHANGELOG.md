@@ -1,3 +1,7 @@
+## 0.1.5
+* Fix `getInvoice` call
+* Fix `serverInitialedPairing`
+
 ## 0.1.4
 * Bump dependencies
 * Fix new linter errors
