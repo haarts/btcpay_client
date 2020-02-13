@@ -66,8 +66,8 @@ class Client {
       : this(url, deserialize(privateKey));
 
   /// Pairs a client based on a pairing code provided by the server
-  Future<Map<String, dynamic>> serverInitiatedPairing(
-      String pairingCode) async {
+  Future<Map<String, dynamic>> serverInitiatedPairing(String pairingCode,
+      [String label]) async {
     var request = await _pair(pairingCode: pairingCode, label: label);
     var response = await _doRequest(request);
 
