@@ -120,6 +120,11 @@ class Client {
     var request = await _httpClient
         .getUrl(url.replace(path: '$invoicesPath/$id'))
         .then((HttpClientRequest request) {
+      request.headers.set('X-Identity', identity);
+      request.headers.set(
+        'X-Signature',
+        sign(request.uri.toString(), keyPair.privateKey),
+      );
       request.headers.contentType = ContentType.json;
 
       return request;
