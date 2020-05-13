@@ -15,6 +15,20 @@ import 'exceptions.dart';
 import 'key_utils.dart';
 
 class Client {
+  /// Create a client based on a server URL and a `AsymmetricKeyPair`.
+  Client(String url, this.keyPair) {
+    clientId = _convertToClientId(keyPair.publicKey);
+    identity = hex.encoder
+        .convert((keyPair.publicKey as ECPublicKey).Q.getEncoded(true));
+    _httpClient = HttpClient();
+    this.url = Uri.parse(url);
+  }
+
+  /// Create a client based on a server URL and a `BigInt` representation of a
+  /// private key.
+  Client.fromBarePrivateKey(String url, BigInt privateKey)
+      : this(url, deserialize(privateKey));
+
   /// Used to send an appropriate User-Agent header with the HTTP requests.
   static const String userAgent = '{BTC|Bit}Pay - Dart';
 
@@ -51,20 +65,6 @@ class Client {
   static final _ripemd160digest = RIPEMD160Digest();
   static final _sha256digest = SHA256Digest();
 
-  /// Create a client based on a server URL and a `AsymmetricKeyPair`.
-  Client(String url, this.keyPair) {
-    clientId = _convertToClientId(keyPair.publicKey);
-    identity = hex.encoder
-        .convert((keyPair.publicKey as ECPublicKey).Q.getEncoded(true));
-    _httpClient = HttpClient();
-    this.url = Uri.parse(url);
-  }
-
-  /// Create a client based on a server URL and a `BigInt` representation of a
-  /// private key.
-  Client.fromBarePrivateKey(String url, BigInt privateKey)
-      : this(url, deserialize(privateKey));
-
   /// Pairs a client based on a pairing code provided by the server
   Future<Map<String, dynamic>> serverInitiatedPairing(String pairingCode,
       [String label]) async {
@@ -93,7 +93,7 @@ class Client {
 
     var request = await _httpClient
         .postUrl(url.replace(path: invoicesPath))
-        .then((HttpClientRequest request) {
+        .then((request) {
       var params = {
         'token': authorizationToken,
         'id': clientId,
@@ -119,7 +119,7 @@ class Client {
   Future<Map<String, dynamic>> getInvoice(String id) async {
     var request = await _httpClient
         .getUrl(url.replace(path: '$invoicesPath/$id'))
-        .then((HttpClientRequest request) {
+        .then((request) {
       request.headers.set('X-Identity', identity);
       request.headers.set(
         'X-Signature',
@@ -190,9 +190,7 @@ class Client {
       params['label'] = label;
     }
 
-    return await _httpClient
-        .postUrl(url.replace(path: tokenPath))
-        .then((HttpClientRequest request) {
+    return _httpClient.postUrl(url.replace(path: tokenPath)).then((request) {
       request.headers.contentType = ContentType.json;
       request.write(jsonEncode(params));
       return request;

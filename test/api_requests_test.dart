@@ -89,7 +89,7 @@ void main() {
         await File('test/files/create_invoice_response.json').readAsString();
     server.enqueue(body: cannedResponse);
 
-    await client.createInvoice(1.0, 'CHF');
+    await client.createInvoice(1, 'CHF');
     // createInvoice also sets the token => take 2 requests
     var request = server.takeRequest();
     request = server.takeRequest();
@@ -107,7 +107,7 @@ void main() {
     server.enqueue(body: cannedResponse);
     var client = Client(server.url, randomSecp256k1KeyPair());
 
-    var response = await client.createInvoice(1.0, 'CHF');
+    var response = await client.createInvoice(1, 'CHF');
     var request = server.takeRequest();
     request = server.takeRequest();
 

@@ -24,11 +24,10 @@ final ecParams = ECCurve_secp256k1();
 AsymmetricKeyPair randomSecp256k1KeyPair() {
   var keyParams = ECKeyGeneratorParameters(ecParams);
 
-  var random = FortunaRandom();
-  random.seed(KeyParameter(_seed()));
+  var random = FortunaRandom()..seed(KeyParameter(_seed()));
 
-  var generator = ECKeyGenerator();
-  generator.init(ParametersWithRandom(keyParams, random));
+  var generator = ECKeyGenerator()
+    ..init(ParametersWithRandom(keyParams, random));
 
   return generator.generateKeyPair();
 }
@@ -111,9 +110,9 @@ ECSignature _decodeSignature(String signature) {
 }
 
 String _encodeSignature(ECSignature signature) {
-  var sequence = ASN1Sequence();
-  sequence.add(ASN1Integer(signature.r));
-  sequence.add(ASN1Integer(signature.s));
+  var sequence = ASN1Sequence()
+    ..add(ASN1Integer(signature.r))
+    ..add(ASN1Integer(signature.s));
 
   return hex.encoder.convert(sequence.encodedBytes);
 }
