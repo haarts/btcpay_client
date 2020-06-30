@@ -1,7 +1,8 @@
 name: btcpay_client
 version: 0.1.5
 description: Library to interact with a BTCPay or BitPay server. Usable in Flutter. Basic functionality is supported.
-homepage: https://github.com/inapay/btcpay_client
+author: Harm Aarts <harm@aarts.email>
+homepage: https://github.com/haarts/btcpay_client
 
 dependencies:
     pointycastle: ^1.0.2
