@@ -24,6 +24,11 @@ class Client {
     this.url = Uri.parse(url);
   }
 
+  Client.fromUserAuthenticationToken(String url, this.userAuthenticationToken) {
+    _httpClient = HttpClient();
+    this.url = Uri.parse(url);
+  }
+
   /// Create a client based on a server URL and a `BigInt` representation of a
   /// private key.
   Client.fromBarePrivateKey(String url, BigInt privateKey)
@@ -41,11 +46,15 @@ class Client {
   /// This token is required to make a successful request.
   String authorizationToken;
 
+  // This token is set on the user level and e.g. used to create new stores
+  String userAuthenticationToken;
+
   HttpClient _httpClient;
 
   static const String tokenPath = 'tokens';
   static const String apiAccessRequestPath = 'api-access-request';
   static const String invoicesPath = 'invoices';
+  static const String storePath = 'api/v1/stores';
 
   /// aka SIN. This is generated from the public key.
   String clientId;
@@ -84,6 +93,26 @@ class Client {
       path: apiAccessRequestPath,
       queryParameters: {'pairingCode': pairingCode},
     ).toString();
+  }
+
+  Future<String> createStore(String name) async {
+    var request =
+        await _httpClient.postUrl(url.replace(path: storePath)).then((request) {
+      var params = {
+        'Name': name,
+      };
+
+      // Creating a store is done using the Greenfield authentication scheme
+      request.headers.set('authorization', 'token $userAuthenticationToken');
+      request.headers.contentType = ContentType.json;
+      request.write(jsonEncode(params));
+
+      return request;
+    });
+
+    var body = await _doRequest(request);
+
+    return body['id'];
   }
 
   /// Creates an invoice on the remote.
